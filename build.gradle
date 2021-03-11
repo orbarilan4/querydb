@@ -17,7 +17,9 @@ plugins {
 def versions = [
         scalaBinary: "2.13",
         akka: "2.6.8",
-        akkaHttp: "10.2.4"
+        akkaHttp: "10.2.4",
+        openCSV: "4.4",
+        mySQLConnectorJava: "5.1.44"
 ]
 
 repositories {
@@ -29,18 +31,14 @@ repositories {
 dependencies {
     // Use Scala 2.13 in our library project
     implementation "org.scala-lang:scala-library:${versions.scalaBinary}.1"
-    implementation platform("com.typesafe.akka:akka-http-bom_${versions.scalaBinary}:${versions.akkaHttp}")
-    implementation "com.typesafe.akka:akka-http-core_${versions.scalaBinary}:${versions.akkaHttp}"
+    implementation "com.typesafe.akka:akka-http-bom_${versions.scalaBinary}:${versions.akkaHttp}"
     implementation "com.typesafe.akka:akka-http-testkit_${versions.scalaBinary}:${versions.akkaHttp}"
     implementation "com.typesafe.akka:akka-http-spray-json_${versions.scalaBinary}:${versions.akkaHttp}"
-
     implementation "com.typesafe.akka:akka-actor-typed_${versions.scalaBinary}:${versions.akka}"
     implementation "com.typesafe.akka:akka-stream_${versions.scalaBinary}:${versions.akka}"
-    implementation "com.typesafe.akka:akka-http_${versions.scalaBinary}"
 
-//    implementation 'com.typesafe.akka:akka-actor-typed:2.6.13'
-//    implementation 'com.typesafe.akka:akka-actor-testkit-typed:2.6.13'
-//    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation "mysql:mysql-connector-java:${versions.mySQLConnectorJava}"
+    implementation "com.opencsv:opencsv:${versions.openCSV}"
 
     // Use Scalatest for testing our library
     testImplementation "junit:junit:4.12"

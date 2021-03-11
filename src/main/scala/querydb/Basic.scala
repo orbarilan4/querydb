@@ -6,16 +6,16 @@ import akka.http.scaladsl.Http
 import akka.Done
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import querydb.Operate
 import spray.json.DefaultJsonProtocol._
 
 import scala.io.StdIn
-
 import scala.concurrent.Future
 
 object Basic {
 
   // needed to run the route
-  implicit val system = ActorSystem(Behaviors.empty, "SprayExample")
+  implicit val system = ActorSystem(Behaviors.empty, "JDBC-Microservice")
   // needed for the future map/flatmap in the end and future in fetchItem and saveOrder
   implicit val executionContext = system.executionContext
 
@@ -25,11 +25,10 @@ object Basic {
   // formats for unmarshalling and marshalling
   implicit val orderFormat = jsonFormat2(Query)
 
-
   def executeQuery(query: Query): Future[Done] = {
     query match {
-      case Query(a, _) => print(a)
-      case _ => print("NO GOOD")
+      case Query(a, b) => Operate.operate(a, b)
+      case _ => print("asd")
     }
     Future {
       Done
@@ -40,8 +39,8 @@ object Basic {
     val route =
       post {
         entity(as[Query]) { order =>
-          val saved: Future[Done] = executeQuery(order)
-          onSuccess(saved) { _ => // we are not interested in the result value `Done` but only in the fact that it was successful
+          val query: Future[Done] = executeQuery(order)
+          onSuccess(query) { _ => // we are not interested in the result value `Done` but only in the fact that it was successful
             complete("the query is done")
           }
         }
