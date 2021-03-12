@@ -82,12 +82,11 @@ object JDBC {
     withStatement(connInfo, privFun)
   }
 
-  def withCSVWriter[T](connInfo: ConnectionInfo, sql: String, fileName: String, f: CSVWriter => T): Try[T] = {
-    def privFun(resultSet: ResultSet): T = {
+  def withCSVWriter(connInfo: ConnectionInfo, sql: String, fileName: String): Try[Int] = {
+    def privFun(resultSet: ResultSet): Int = {
       val csvWriter: CSVWriter = new CSVWriter(new FileWriter(fileName))
-      csvWriter.writeAll(resultSet, true)
       try {
-        f(csvWriter)
+        csvWriter.writeAll(resultSet, true)
       }
       finally {
         csvWriter.close()
