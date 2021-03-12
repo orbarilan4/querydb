@@ -1,4 +1,4 @@
-package querydb
+package querydb.db
 
 trait Config {
   def driver = "com.mysql.jdbc.Driver"

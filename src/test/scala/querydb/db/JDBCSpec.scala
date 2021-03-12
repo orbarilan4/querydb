@@ -1,7 +1,8 @@
 
-package querydb
+package querydb.db
 
-import java.sql.{ResultSet, SQLException, Statement}
+import java.sql.{SQLException, Statement}
+
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfter, FunSpec}
 import org.scalatestplus.junit.JUnitRunner
