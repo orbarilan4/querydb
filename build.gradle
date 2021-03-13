@@ -20,7 +20,8 @@ def versions = [
         akka: "2.6.8",
         akkaHttp: "10.2.4",
         openCSV: "4.4",
-        mySQLConnectorJava: "5.1.44"
+        mySQLConnectorJava: "5.1.44",
+        logBack: "1.2.3"
 ]
 
 repositories {
@@ -35,7 +36,7 @@ dependencies {
     implementation "com.typesafe.akka:akka-http-spray-json_${versions.scalaBinary}:${versions.akkaHttp}"
     implementation "com.typesafe.akka:akka-actor-typed_${versions.scalaBinary}:${versions.akka}"
     implementation "com.typesafe.akka:akka-stream_${versions.scalaBinary}:${versions.akka}"
-//    implementation "com.typesafe.akka:akka-remote:2.6.8"
+    implementation "ch.qos.logback:logback-classic:${versions.logBack}"
     implementation "mysql:mysql-connector-java:${versions.mySQLConnectorJava}"
     implementation "com.opencsv:opencsv:${versions.openCSV}"
 
