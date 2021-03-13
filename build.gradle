@@ -6,13 +6,14 @@
  * User Manual available at https://docs.gradle.org/6.3/userguide/scala_plugin.html
  */
 plugins {
-    // Apply the scala plugin to add support for Scala
     id 'scala'
-
-    // Apply the java-library plugin for API and implementation separation.
-    id 'java-library'
     id 'idea'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'application'
+    id 'java'
 }
+
+mainClassName = 'querydb.Main'
 
 def versions = [
         scalaBinary: "2.13",
@@ -23,8 +24,6 @@ def versions = [
 ]
 
 repositories {
-    // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
 }
 
@@ -36,7 +35,7 @@ dependencies {
     implementation "com.typesafe.akka:akka-http-spray-json_${versions.scalaBinary}:${versions.akkaHttp}"
     implementation "com.typesafe.akka:akka-actor-typed_${versions.scalaBinary}:${versions.akka}"
     implementation "com.typesafe.akka:akka-stream_${versions.scalaBinary}:${versions.akka}"
-
+//    implementation "com.typesafe.akka:akka-remote:2.6.8"
     implementation "mysql:mysql-connector-java:${versions.mySQLConnectorJava}"
     implementation "com.opencsv:opencsv:${versions.openCSV}"
 
@@ -48,4 +47,21 @@ dependencies {
 
     // Need scala-xml at test runtime
     testRuntimeOnly "org.scala-lang.modules:scala-xml_${versions.scalaBinary}:1.2.0"
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+shadowJar {
+    append('reference.conf')
+}
+
+task testJar(type: ShadowJar) {
+    classifier = 'tests'
+    from sourceSets.test.output
+    configurations = [project.configurations.testRuntime]
+}
+
+task runG(type: JavaExec, dependsOn: classes) {
+    main = 'querydb.Main'
+    classpath = sourceSets.main.runtimeClasspath
 }

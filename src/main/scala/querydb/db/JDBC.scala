@@ -6,7 +6,6 @@ import com.opencsv.CSVWriter
 import scala.util.Try
 
 object JDBC {
-
   /**
    * Invokes the supplied function parameter with a properly created and managed JDBC Connection
    *
