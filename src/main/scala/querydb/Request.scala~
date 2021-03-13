@@ -1,0 +1,4 @@
+package querydb
+
+// domain model
+final case class Request(query: String, fileName: String)
