@@ -4,7 +4,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
-import querydb.db.{ConnectionInfo, QueryExecutor, Config}
+import querydb.db.{Config, ConnectionInfo, JDBC, QueryExecutor}
 
 import scala.util.{Failure, Success}
 
@@ -13,7 +13,7 @@ object Main {
     // Akka HTTP still needs a classic ActorSystem to start
     import system.executionContext
 
-    val bindingFuture = Http().newServerAt("localhost", 8080).bind(routes)
+    val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(routes)
     bindingFuture.onComplete {
       case Success(binding) =>
         val address = binding.localAddress
@@ -32,7 +32,8 @@ object Main {
     else {
       implicit val system = ActorSystem(Behaviors.empty, "JDBC-Microservice")
       val config = new Config(args(0))
-      val queryExecutor = QueryExecutor(ConnectionInfo(config.url, config.username, config.password))
+      val jdbc = JDBC(ConnectionInfo(config.url, config.username, config.password))
+      val queryExecutor = QueryExecutor(jdbc)
       val routes = new Routes(queryExecutor)
 
       startHttpServer(routes.route)

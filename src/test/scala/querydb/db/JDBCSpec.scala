@@ -11,11 +11,14 @@ import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class JDBCSpec extends FunSpec with BeforeAndAfter {
-  val connectionInfo = ConnectionInfo("jdbc:mysql://db4free.net/querydbtest", "crazyuser3000", "hesoyam123123")
+  val connectionInfo = ConnectionInfo(
+    "jdbc:mysql://db4free.net/querydbtest",
+    "crazyusers000",
+    "hesoyam123123")
   val sql = "SELECT * FROM EXAMPLE"
-
+  val jdbc = JDBC(connectionInfo)
   before {
-    JDBC.withStatement(connectionInfo, (stmt: Statement) => {
+    jdbc.withStatement((stmt: Statement) => {
       stmt.execute("CREATE TABLE EXAMPLE(ID INT PRIMARY KEY, DESCRIPTION VARCHAR)")
       stmt.execute("INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(0, 'Zero')")
       stmt.execute("INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(1, 'One')")
@@ -25,47 +28,21 @@ class JDBCSpec extends FunSpec with BeforeAndAfter {
     })
   }
 
-  describe("withConnection") {
-    it("provides a valid JDBC Connection") {
-      assert(JDBC.withConnection(connectionInfo, c => {
-        assert(c.getMetaData != null)
-      }).isSuccess)
-    }
-
-    it("projects exceptions properly") {
-      assert(JDBC.withConnection(connectionInfo, _ => {
-        throw new Exception
-      }).isFailure)
-    }
-
-    it("invalidates the Connection outside of the provided scope") {
-      JDBC.withConnection(connectionInfo, identity) match {
-        case Success(conn) => {
-          assert(conn != null)
-
-          intercept[SQLException] {
-            conn.getMetaData
-          }
-        }
-        case Failure(_) => fail()
-      }
-    }
-
     describe("withStatement") {
       it("provides a valid JDBC Statement") {
-        assert(JDBC.withStatement(connectionInfo, s => {
+        assert(jdbc.withStatement(s => {
           assert(s.getQueryTimeout == 0 || s.getQueryTimeout != 0)
         }).isSuccess)
       }
 
       it("projects exceptions properly") {
-        assert(JDBC.withStatement(connectionInfo, _ => {
+        assert(jdbc.withStatement( _ => {
           throw new Exception
         }).isFailure)
       }
 
       it("invalidates the Statement outside of the provided scope") {
-        JDBC.withStatement(connectionInfo, identity) match {
+        jdbc.withStatement(identity) match {
           case Success(stmt) => {
             assert(stmt != null)
 
@@ -79,9 +56,8 @@ class JDBCSpec extends FunSpec with BeforeAndAfter {
     }
 
     after {
-      JDBC.withStatement(connectionInfo, (stmt: Statement) => {
+      jdbc.withStatement((stmt: Statement) => {
         stmt.execute("DROP TABLE EXAMPLE")
       })
     }
-  }
 }

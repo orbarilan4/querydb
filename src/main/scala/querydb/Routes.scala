@@ -32,7 +32,7 @@ class Routes(queryExecutor: QueryExecutor)(implicit val system: ActorSystem[_]) 
       entity(as[Query]) { query =>
         val request: Future[Done] = operate(query)
         onSuccess(request) { _ =>
-          system.log.info("New query: '{}' received, the result has saved to '{}'", query.query, query.fileName)
+          system.log.info("New query: '{}' received, the result has saved to fileName called: '{}'", query.query, query.fileName)
           complete("The query was performed successfully !")
         }
       }
