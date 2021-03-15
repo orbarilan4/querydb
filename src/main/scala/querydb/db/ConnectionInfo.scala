@@ -3,6 +3,7 @@ package querydb.db
 /**
  * Raw structure for holding any and all fields necessary to create a JDBC connection.
  *
+ * @constructor create a new connection info with a given url, username and password
  * @param url      JDBC connection URL.  e.g. "jdbc:mysql://db4free.net/querydbtest"
  * @param username username for associated connection URL.  Can be null or ""
  * @param password password for associated connection URL.  Can be null or ""

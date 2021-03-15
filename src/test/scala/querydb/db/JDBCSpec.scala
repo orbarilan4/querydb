@@ -1,22 +1,20 @@
 
 package querydb.db
 
+import java.io.File
 import java.sql.{SQLException, Statement}
-
+import org.scalatest.funspec.AnyFunSpec
 import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfter, FunSpec}
+import org.scalatest.BeforeAndAfter
 import org.scalatestplus.junit.JUnitRunner
-
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class JDBCSpec extends FunSpec with BeforeAndAfter {
-  val connectionInfo = ConnectionInfo(
-    "jdbc:mysql://db4free.net/querydbtest",
-    "crazyusers000",
-    "hesoyam123123")
-  val sql = "SELECT * FROM EXAMPLE"
+class JDBCSpec extends AnyFunSpec with BeforeAndAfter {
+  val connectionInfo = ConnectionInfo("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1")
   val jdbc = JDBC(connectionInfo)
+  val sql = "SELECT * FROM EXAMPLE"
+  val fileName = "fileName.csv"
   before {
     jdbc.withStatement((stmt: Statement) => {
       stmt.execute("CREATE TABLE EXAMPLE(ID INT PRIMARY KEY, DESCRIPTION VARCHAR)")
@@ -28,36 +26,76 @@ class JDBCSpec extends FunSpec with BeforeAndAfter {
     })
   }
 
-    describe("withStatement") {
-      it("provides a valid JDBC Statement") {
-        assert(jdbc.withStatement(s => {
-          assert(s.getQueryTimeout == 0 || s.getQueryTimeout != 0)
-        }).isSuccess)
-      }
+  describe("withStatement") {
+    it("provides a valid JDBC Statement") {
+      assert(jdbc.withStatement(s => {
+        assert(s.getQueryTimeout == 0 || s.getQueryTimeout != 0)
+      }).isSuccess)
+    }
 
-      it("projects exceptions properly") {
-        assert(jdbc.withStatement( _ => {
-          throw new Exception
-        }).isFailure)
-      }
+    it("projects exceptions properly") {
+      assert(jdbc.withStatement(_ => {
+        throw new Exception
+      }).isFailure)
+    }
 
-      it("invalidates the Statement outside of the provided scope") {
-        jdbc.withStatement(identity) match {
-          case Success(stmt) => {
-            assert(stmt != null)
+    it("invalidates the Statement outside of the provided scope") {
+      jdbc.withStatement(identity) match {
+        case Success(stmt) => {
+          assert(stmt != null)
 
-            intercept[SQLException] {
-              stmt.getQueryTimeout
-            }
+          intercept[SQLException] {
+            stmt.getQueryTimeout
           }
-          case Failure(_) => fail()
         }
+        case Failure(_) => fail()
       }
     }
+  }
 
-    after {
-      jdbc.withStatement((stmt: Statement) => {
-        stmt.execute("DROP TABLE EXAMPLE")
-      })
+  describe("withResultSet") {
+    it("provides a valid JDBC ResultSet") {
+      assert(jdbc.withResultSet(sql, rs => {
+        assert(rs.next())
+      }).isSuccess)
     }
+
+    it("projects exceptions properly") {
+      assert(jdbc.withResultSet(sql + "invalid", _ => ()).isFailure)
+    }
+
+    it("invalidates the ResultSet outside of the provided scope") {
+      jdbc.withResultSet(sql, identity) match {
+        case Success(resultSet) => {
+          assert(resultSet != null)
+
+          intercept[SQLException] {
+            resultSet.next()
+          }
+        }
+        case Failure(_) => fail()
+      }
+    }
+  }
+
+  describe("withCSVWriter") {
+    it("provides a valid sql query") {
+
+      assert(jdbc.withCSVWriter(sql, fileName).isSuccess)
+    }
+
+    it("provides an invalid sql query") {
+      assert(jdbc.withCSVWriter(sql + "invalid", fileName).isFailure)
+    }
+  }
+
+  after {
+    jdbc.withStatement((stmt: Statement) => {
+      stmt.execute("DROP TABLE EXAMPLE")
+    })
+    val file = new File("output/" + fileName);
+    if (file.exists()) {
+      file.delete()
+    }
+  }
 }

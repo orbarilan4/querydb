@@ -16,12 +16,15 @@ plugins {
 mainClassName = 'querydb.Main'
 
 def versions = [
-        scalaBinary: "2.13",
         akka: "2.6.8",
         akkaHttp: "10.2.4",
         openCSV: "4.4",
         mySQLConnectorJava: "5.1.44",
-        logBack: "1.2.3"
+        logBack: "1.2.3",
+        junit: "4.12",
+        scalaBinary: "2.13",
+        scalaTest: "3.0.5",
+        scalaTestPlus: "3.1.0.0"
 ]
 
 repositories {
@@ -29,7 +32,6 @@ repositories {
 }
 
 dependencies {
-    // Use Scala 2.13 in our library project
     implementation "org.scala-lang:scala-library:${versions.scalaBinary}.1"
     implementation "com.typesafe.akka:akka-http-bom_${versions.scalaBinary}:${versions.akkaHttp}"
     implementation "com.typesafe.akka:akka-http-testkit_${versions.scalaBinary}:${versions.akkaHttp}"
@@ -40,14 +42,11 @@ dependencies {
     implementation "mysql:mysql-connector-java:${versions.mySQLConnectorJava}"
     implementation "com.opencsv:opencsv:${versions.openCSV}"
 
-    // Use Scalatest for testing our library
-    testImplementation "junit:junit:4.12"
-    testImplementation "org.scalatest:scalatest_${versions.scalaBinary}:3.1.0"
-    testImplementation "org.scalatestplus:junit-4-12_${versions.scalaBinary}:3.1.0.0"
-    testImplementation "com.typesafe.akka:akka-actor-testkit-typed_${versions.scalaBinary}:${versions.akka}"
-
-    // Need scala-xml at test runtime
-    testRuntimeOnly "org.scala-lang.modules:scala-xml_${versions.scalaBinary}:1.2.0"
+    // Use those for testing our app
+    testImplementation "junit:junit:${versions.junit}"
+    testImplementation "org.scalatest:scalatest_${versions.scalaBinary}:${versions.scalaTest}"
+    testImplementation "org.scalatestplus:junit-4-12_${versions.scalaBinary}:${versions.scalaTestPlus}"
+    testImplementation "com.h2database:h2:1.4.197"
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
@@ -62,7 +61,3 @@ task testJar(type: ShadowJar) {
     configurations = [project.configurations.testRuntime]
 }
 
-task runG(type: JavaExec, dependsOn: classes) {
-    main = 'querydb.Main'
-    classpath = sourceSets.main.runtimeClasspath
-}
