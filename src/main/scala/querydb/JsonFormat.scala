@@ -2,6 +2,9 @@ package querydb
 
 import spray.json.DefaultJsonProtocol
 
+/**
+ * Json formats holder
+ */
 object JsonFormat {
 
   import DefaultJsonProtocol._

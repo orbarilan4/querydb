@@ -2,12 +2,17 @@ package querydb
 
 import akka.Done
 import akka.http.scaladsl.server.Directives._
-
 import scala.concurrent.Future
 import akka.actor.typed.ActorSystem
 import akka.util.Timeout
 import querydb.db.QueryExecutor
 
+/**
+ * Managing routes for server
+ *
+ * @constructor create a new Routes with queryExecutor
+ * @param queryExecutor the queryExecutor
+ */
 class Routes(queryExecutor: QueryExecutor)(implicit val system: ActorSystem[_]) {
 
   import system.executionContext
